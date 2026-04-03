@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1000 frågor – studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #11172b;
+      --panel: rgba(16, 22, 41, 0.88);
+      --card: #151d35;
+      --card2: #0f162a;
+      --text: #f8fafc;
+      --muted: #b8c4dc;
+      --soft: #7f8dab;
+      --accent: #f6c453;
+      --accent-dark: #2b2100;
+      --secondary: #81e6d9;
+      --danger: #ff6b6b;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 18px 48px rgba(0,0,0,0.35);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(246,196,83,0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(129,230,217,0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .hero-card, .panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-card { padding: 26px; }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #ffe5a5;
+      background: rgba(246,196,83,0.12);
+      border: 1px solid rgba(246,196,83,0.18);
+      border-radius: 999px;
+      padding: 7px 12px;
+      margin-bottom: 14px;
+    }
+    .lead { color: var(--muted); max-width: 60ch; margin: 0; }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .stat {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat strong { font-size: 1.4rem; display: block; }
+    .stat span { font-size: 0.88rem; color: var(--muted); }
+    .title-card {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .title-card h2 { margin: 0; font-size: 1rem; color: var(--muted); font-weight: 600; }
+    .episode-title {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin: 0;
+    }
+    .subtitle { color: var(--muted); font-size: 0.95rem; }
+    .main {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .panel { padding: 20px; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    button, select, input[type="file"], input[type="text"], textarea {
+      font: inherit;
+      color: var(--text);
+    }
+    button {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: var(--card);
+      cursor: pointer;
+      transition: transform .12s ease, opacity .12s ease, background .12s ease;
+      font-weight: 700;
+    }
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: var(--accent); color: #161103; border-color: transparent; }
+    button.secondary { background: #243457; }
+    button.soft { background: #17213d; }
+    button.success { background: var(--secondary); color: #062d28; border-color: transparent; }
+    button.danger { background: var(--danger); color: white; border-color: transparent; }
+    select, input[type="text"], textarea, input[type="file"] {
+      width: 100%;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .question-list {
+      display: grid;
+      gap: 12px;
+    }
+    .question {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .question::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: linear-gradient(180deg, var(--accent), var(--secondary));
+      opacity: .9;
+    }
+    .q-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .q-num {
+      font-size: 0.82rem;
+      color: #ffe8b2;
+      background: rgba(246,196,83,0.12);
+      border: 1px solid rgba(246,196,83,0.2);
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .q-title { margin: 0; font-size: 1.12rem; letter-spacing: -0.01em; }
+    .meta { color: var(--muted); font-size: 0.92rem; }
+    .pill {
+      display: inline-block;
+      background: rgba(129,230,217,0.10);
+      color: #b8fff5;
+      border: 1px solid rgba(129,230,217,0.16);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      padding: 4px 9px;
+      margin-right: 8px;
+    }
+    .prompt-box {
+      background: rgba(246,196,83,0.08);
+      border: 1px dashed rgba(246,196,83,0.26);
+      border-radius: 16px;
+      padding: 14px;
+      color: #ffeac0;
+      font-size: 0.95rem;
+      margin-top: 14px;
+    }
+    .stack { display: grid; gap: 16px; }
+    .saved-item {
+      border: 1px solid var(--border);
+      background: var(--card2);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .saved-item h4 { margin: 0 0 6px; font-size: 1rem; }
+    .saved-item p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .small { color: var(--soft); font-size: 0.9rem; }
+    .footer-note {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--soft);
+    }
+    .mini-actions { display:flex; flex-wrap: wrap; gap:8px; margin-top:10px; }
+    @media (max-width: 980px) {
+      .hero, .main { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .row-2, .hero-stats { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; }
+      button { width: 100%; }
+    }
+    @media print {
+      body { background: white; color: black; }
+      .wrap { max-width: none; padding: 0; }
+      .hero, .main { display: block; }
+      .panel, .hero-card, .title-card { box-shadow: none; background: white; border: 1px solid #ddd; }
+      button, input, select, textarea, #episodesPanel, #libraryPanel { display: none !important; }
+      .question { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow">🎙️ Poddstudio för <strong>1000 frågor</strong></div>
+        <h1>Slumpa.<br>Spela in.<br>Publicera.</h1>
+        <p class="lead">En snyggare generator för din podd. Välj kategori, dra nya frågor utan dubletter, skapa automatisk avsnittstitel och exportera dagens material till text eller utskriftsvänlig PDF.</p>
+        <div class="hero-stats">
+          <div class="stat"><strong id="totalCount">0</strong><span>frågor i biblioteket</span></div>
+          <div class="stat"><strong id="usedCount">0</strong><span>använda frågor</span></div>
+          <div class="stat"><strong id="remainingCount">0</strong><span>kvar att dra</span></div>
+        </div>
+      </div>
+      <div class="title-card hero-card">
+        <div>
+          <h2>Dagens avsnitt</h2>
+          <p class="episode-title" id="episodeTitle">1000 frågor – redo att spela in</p>
+          <p class="subtitle" id="episodeSubtitle">Slumpa några frågor så bygger studion en rubrik åt dig.</p>
+        </div>
+        <div class="prompt-box" id="smartPrompt">Tips: välj 3 frågor om du vill ha ett kort, tajt avsnitt på 12–20 minuter.</div>
+      </div>
+    </section>
+
+    <section class="main">
+      <div class="panel">
+        <div class="controls">
+          <button class="primary" onclick="drawQuestions(1)">Slumpa 1 fråga</button>
+          <button class="secondary" onclick="drawQuestions(3)">Slumpa 3 frågor</button>
+          <button class="soft" onclick="nextEpisode()">Nästa avsnitt</button>
+          <button class="soft" id="noRepeatBtn" onclick="toggleNoRepeat()">Inga dubletter: På</button>
+          <button class="danger" onclick="resetUsed()">Nollställ använda</button>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="categoryFilter">Kategori</label>
+            <select id="categoryFilter" onchange="renderStatus()"></select>
+          </div>
+          <div class="field">
+            <label for="episodeNumber">Avsnittsnummer</label>
+            <input type="text" id="episodeNumber" value="1" oninput="updateEpisodeTitle()" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="customIntro">Kort undertitel</label>
+            <input type="text" id="customIntro" placeholder="t.ex. Tre stora frågor om kärlek och mening" oninput="updateEpisodeTitle()" />
+          </div>
+          <div class="field">
+            <label for="csvFile">Ladda egen CSV</label>
+            <input type="file" id="csvFile" accept=".csv" onchange="loadCSV(event)" />
+          </div>
+        </div>
+
+        <div id="questionArea" class="question-list">
+          <div class="question">
+            <div class="q-top">
+              <div>
+                <p class="q-title">Studion väntar på första dragningen</p>
+                <div class="meta">Tryck på <strong>Slumpa 1 fråga</strong> eller <strong>Slumpa 3 frågor</strong> för att starta.</div>
+              </div>
+              <span class="q-num">START</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-actions">
+          <button class="success" onclick="saveEpisode()">Spara avsnitt</button>
+          <button class="soft" onclick="exportTXT()">Exportera till TXT</button>
+          <button class="soft" onclick="window.print()">Skriv ut / spara som PDF</button>
+          <button class="soft" onclick="copyEpisode()">Kopiera avsnitt</button>
+        </div>
+
+        <div class="footer-note">
+          CSV-format: <strong>question,category</strong> eller <strong>id,kategori,fråga</strong><br>
+          Exempel: <em>Varför är himlen blå?,Vetenskap</em>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="panel" id="libraryPanel">
+          <h3 style="margin-top:0;">Show notes</h3>
+          <p class="small">Skriv intro, tankar, övergångar eller en avslutande poäng för avsnittet.</p>
+          <textarea id="notes" rows="12" placeholder="Exempel:\nIntro: Välkommen till 1000 frågor...\n\nVinkel:\n- Fråga 1: personlig erfarenhet\n- Fråga 2: humor\n- Fråga 3: större reflektion\n\nAvslutning:\nVad säger dagens frågor om vår tid?"></textarea>
+        </div>
+
+        <div class="panel" id="episodesPanel">
+          <h3 style="margin-top:0;">Sparade avsnitt</h3>
+          <p class="small">De sparas lokalt i webbläsaren på den här enheten.</p>
+          <div id="episodes" class="stack"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const starterQuestions = [
+  ["Varför är himlen blå?","Vetenskap"],
+  ["Hur vet man om någon är kär i en?","Relationer"],
+  ["Varför blir man trött hela tiden?","Hälsa"],
+  ["Hur blir man rik?","Ekonomi"],
+  ["Vad är meningen med livet?","Existentiellt"],
+  ["Hur fungerar wifi?","Teknik"],
+  ["Hur vet man att Gud finns?","Tro"],
+  ["Hur kommer man över ett ex?","Relationer"],
+  ["Hur får man bättre sömn?","Hälsa"],
+  ["Varför jämför man sig med andra?","Psykologi"],
+  ["Vad är AI?","Teknik"],
+  ["Hur sparar man pengar?","Ekonomi"],
+  ["Hur slutar man skjuta upp saker?","Produktivitet"],
+  ["Vad betyder nåd?","Tro"],
+  ["Hur vet man vad man vill i livet?","Existentiellt"],
+  ["Hur blir man mindre stressad?","Hälsa"],
+  ["Varför ljuger människor?","Psykologi"],
+  ["Hur blir man lycklig?","Psykologi"],
+  ["Hur ber man?","Tro"],
+  ["Vad är inflation?","Ekonomi"],
+  ["Hur lär man sig disciplin?","Produktivitet"],
+  ["Varför är havet salt?","Vetenskap"],
+  ["Hur får man fler lyssnare till en podd?","Media"],
+  ["Varför blir man svartsjuk?","Relationer"],
+  ["Hur får man en vana att hålla?","Produktivitet"],
+  ["Vad ska man äta för att må bra?","Hälsa"],
+  ["Vad är sanning?","Existentiellt"],
+  ["Hur blir man bättre på att prata?","Kommunikation"],
+  ["Hur vet man om en vänskap är äkta?","Relationer"],
+  ["Vad ska man prata om i en podd?","Media"],
+  ["Hur får man ordning hemma?","Vardag"],
+  ["Hur mycket kaffe är för mycket?","Vardag"],
+  ["Varför är bananer böjda?","Humor"],
+  ["Hur fungerar algoritmer?","Teknik"],
+  ["Hur förlåter man någon?","Relationer"],
+  ["Varför känns livet ibland tomt?","Existentiellt"],
+  ["Vad gör man när man tappat lusten?","Psykologi"],
+  ["Hur börjar man träna?","Hälsa"],
+  ["Vad är skillnaden mellan tro och vetande?","Tro"],
+  ["Hur blir man bra på sociala medier?","Media"]
+];
+
+let questions = loadQuestions();
+let usedIndices = loadUsed();
+let noRepeat = loadNoRepeat();
+let currentEpisode = [];
+
+function loadQuestions() {
+  const saved = localStorage.getItem('podcast_questions_v2');
+  return saved ? JSON.parse(saved) : starterQuestions.map(([question, category]) => ({question, category}));
+}
+function saveQuestions() {
+  localStorage.setItem('podcast_questions_v2', JSON.stringify(questions));
+}
+function loadUsed() {
+  const saved = localStorage.getItem('podcast_used_v2');
+  return saved ? JSON.parse(saved) : [];
+}
+function saveUsed() {
+  localStorage.setItem('podcast_used_v2', JSON.stringify(usedIndices));
+}
+function loadNoRepeat() {
+  const saved = localStorage.getItem('podcast_norepeat_v2');
+  return saved ? JSON.parse(saved) : true;
+}
+function saveNoRepeat() {
+  localStorage.setItem('podcast_norepeat_v2', JSON.stringify(noRepeat));
+}
+
+function uniqueCategories() {
+  const cats = [...new Set(questions.map(q => q.category || 'Okategoriserad'))].sort((a,b)=>a.localeCompare(b,'sv'));
+  return ['Alla kategorier', ...cats];
+}
+
+function populateCategories() {
+  const sel = document.getElementById('categoryFilter');
+  const current = sel.value || 'Alla kategorier';
+  sel.innerHTML = '';
+  uniqueCategories().forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+  sel.value = uniqueCategories().includes(current) ? current : 'Alla kategorier';
+}
+
+function getAvailableIndices() {
+  const category = document.getElementById('categoryFilter').value || 'Alla kategorier';
+  return questions
+    .map((q, i) => ({...q, i}))
+    .filter(item => category === 'Alla kategorier' || item.category === category)
+    .filter(item => !noRepeat || !usedIndices.includes(item.i))
+    .map(item => item.i);
+}
+
+function pickRandom(arr, count) {
+  const copy = [...arr];
+  const chosen = [];
+  while (copy.length && chosen.length < count) {
+    const index = Math.floor(Math.random() * copy.length);
+    chosen.push(copy.splice(index, 1)[0]);
+  }
+  return chosen;
+}
+
+function questionPrompt(question, category) {
+  const prompts = {
+    'Relationer': 'Vinkel: Vad avslöjar frågan om längtan, rädsla eller bekräftelse?',
+    'Tro': 'Vinkel: Håll både hjärta och tanke levande. Var varm men tydlig.',
+    'Hälsa': 'Vinkel: Ge ett mänskligt svar först, fakta sen. Undvik att låta som en broschyr.',
+    'Existentiellt': 'Vinkel: Börja i det personliga och zooma sedan ut mot något större.',
+    'Psykologi': 'Vinkel: Förklara varför människor känner så här utan att döma dem.',
+    'Humor': 'Vinkel: Lek med frågan först, landa sedan i något oväntat klokt.',
+    'Media': 'Vinkel: Koppla frågan till vår tid, uppmärksamhet och behovet av att synas.',
+    'Ekonomi': 'Vinkel: Var konkret. Gör det jordnära och begripligt.',
+    'Teknik': 'Vinkel: Översätt det tekniska till vanligt språk och ett mänskligt perspektiv.'
+  };
+  return prompts[category] || `Vinkel: Varför tror du att människor googlar just "${question}"?`;
+}
+
+function drawQuestions(count) {
+  const available = getAvailableIndices();
+  if (!available.length) {
+    document.getElementById('questionArea').innerHTML = `
+      <div class="question">
+        <div class="q-top">
+          <div>
+            <p class="q-title">Inga frågor kvar i det här urvalet</p>
+            <div class="meta">Byt kategori eller nollställ använda frågor.</div>
+          </div>
+          <span class="q-num">STOPP</span>
+        </div>
+      </div>`;
+    return;
+  }
+  const selected = pickRandom(available, count);
+  currentEpisode = selected.map(i => ({...questions[i], index: i}));
+  if (noRepeat) {
+    selected.forEach(i => { if (!usedIndices.includes(i)) usedIndices.push(i); });
+    saveUsed();
+  }
+  renderQuestions();
+  updateEpisodeTitle();
+  renderStatus();
+}
+
+function renderQuestions() {
+  const area = document.getElementById('questionArea');
+  if (!currentEpisode.length) return;
+  area.innerHTML = currentEpisode.map((q, idx) => `
+    <article class="question">
+      <div class="q-top">
+        <div>
+          <span class="pill">${escapeHtml(q.category || 'Okategoriserad')}</span>
+          <p class="q-title">${escapeHtml(q.question)}</p>
+          <div class="meta">Fråga ${idx + 1} i dagens avsnitt</div>
+        </div>
+        <span class="q-num">#${idx + 1}</span>
+      </div>
+      <div class="prompt-box">${escapeHtml(questionPrompt(q.question, q.category))}</div>
+    </article>
+  `).join('');
+}
+
+function renderStatus() {
+  populateCategories();
+  document.getElementById('totalCount').textContent = questions.length;
+  document.getElementById('usedCount').textContent = usedIndices.length;
+  document.getElementById('remainingCount').textContent = getAvailableIndices().length;
+  document.getElementById('noRepeatBtn').textContent = `Inga dubletter: ${noRepeat ? 'På' : 'Av'}`;
+  updateSmartPrompt();
+}
+
+function updateSmartPrompt() {
+  const category = document.getElementById('categoryFilter').value || 'Alla kategorier';
+  const tips = {
+    'Alla kategorier': 'Tips: tre frågor med olika ton ger ofta bäst dynamik i ett avsnitt.',
+    'Relationer': 'Tips: i relationsfrågor vinner du på att låta både sårbar och rak.',
+    'Tro': 'Tips: låt svaren vara lugna, modiga och mänskliga. Då sticker avsnittet ut.',
+    'Humor': 'Tips: börja lätt, men avsluta gärna med en tanke som stannar kvar.',
+    'Hälsa': 'Tips: håll svaren enkla och användbara. Folk vill känna igen sig direkt.',
+    'Existentiellt': 'Tips: de största frågorna blir starkast när du gör dem personliga.'
+  };
+  document.getElementById('smartPrompt').textContent = tips[category] || 'Tips: låt frågorna bli en spegel av samtiden, inte bara svar på internetfunderingar.';
+}
+
+function toggleNoRepeat() {
+  noRepeat = !noRepeat;
+  saveNoRepeat();
+  renderStatus();
+}
+
+function resetUsed() {
+  usedIndices = [];
+  saveUsed();
+  renderStatus();
+}
+
+function episodeData() {
+  return {
+    number: document.getElementById('episodeNumber').value.trim() || '1',
+    title: document.getElementById('episodeTitle').textContent,
+    subtitle: document.getElementById('episodeSubtitle').textContent,
+    notes: document.getElementById('notes').value.trim(),
+    questions: currentEpisode,
+    savedAt: new Date().toLocaleString('sv-SE')
+  };
+}
+
+function updateEpisodeTitle() {
+  const num = document.getElementById('episodeNumber').value.trim() || '1';
+  const customIntro = document.getElementById('customIntro').value.trim();
+  let title = `1000 frågor – avsnitt ${num}`;
+  let subtitle = 'Ett nytt avsnitt väntar på sin första fråga.';
+
+  if (currentEpisode.length) {
+    const cats = [...new Set(currentEpisode.map(q => q.category))];
+    const firstWords = currentEpisode.map(q => cleanTitlePiece(q.question)).slice(0,2);
+    if (customIntro) {
+      title = `1000 frågor – ${customIntro}`;
+    } else if (currentEpisode.length === 1) {
+      title = `1000 frågor – ${firstWords[0]}`;
+    } else {
+      title = `1000 frågor – ${firstWords.join(' & ')}`;
+    }
+    subtitle = `Avsnitt ${num} • ${cats.join(' • ')} • ${currentEpisode.length} ${currentEpisode.length === 1 ? 'fråga' : 'frågor'}`;
+  } else if (customIntro) {
+    title = `1000 frågor – ${customIntro}`;
+    subtitle = `Avsnitt ${num}`;
+  }
+
+  document.getElementById('episodeTitle').textContent = title;
+  document.getElementById('episodeSubtitle').textContent = subtitle;
+}
+
+function cleanTitlePiece(text) {
+  return text
+    .replace(/^hur\s+/i, 'hur ') 
+    .replace(/^vad\s+/i, 'vad ')
+    .replace(/^varför\s+/i, 'varför ')
+    .replace(/^vem\s+/i, 'vem ')
+    .replace(/^vilken\s+/i, 'vilken ')
+    .replace(/[?]/g, '')
+    .trim();
+}
+
+function nextEpisode() {
+  currentEpisode = [];
+  document.getElementById('notes').value = '';
+  document.getElementById('customIntro').value = '';
+  const epInput = document.getElementById('episodeNumber');
+  const currentNum = parseInt(epInput.value, 10);
+  epInput.value = Number.isFinite(currentNum) ? currentNum + 1 : 2;
+  document.getElementById('questionArea').innerHTML = `
+    <div class="question">
+      <div class="q-top">
+        <div>
+          <p class="q-title">Nytt avsnitt laddat</p>
+          <div class="meta">Slumpa nya frågor när du är redo.</div>
+        </div>
+        <span class="q-num">NYTT</span>
+      </div>
+    </div>`;
+  updateEpisodeTitle();
+}
+
+function saveEpisode() {
+  const data = episodeData();
+  if (!data.questions.length) {
+    alert('Slumpa minst en fråga först.');
+    return;
+  }
+  const saved = JSON.parse(localStorage.getItem('podcast_saved_episodes_v2') || '[]');
+  saved.unshift(data);
+  localStorage.setItem('podcast_saved_episodes_v2', JSON.stringify(saved.slice(0, 20)));
+  renderEpisodes();
+}
+
+function renderEpisodes() {
+  const container = document.getElementById('episodes');
+  const saved = JSON.parse(localStorage.getItem('podcast_saved_episodes_v2') || '[]');
+  if (!saved.length) {
+    container.innerHTML = '<div class="saved-item"><h4>Inga sparade avsnitt än</h4><p>När du sparar ett avsnitt dyker det upp här.</p></div>';
+    return;
+  }
+  container.innerHTML = saved.map(item => `
+    <div class="saved-item">
+      <h4>${escapeHtml(item.title)}</h4>
+      <p>${escapeHtml(item.subtitle || '')}</p>
+      <p class="small" style="margin-top:8px;">${item.questions.map(q => escapeHtml(q.question)).join(' • ')}</p>
+      <p class="small" style="margin-top:8px;">Sparat: ${escapeHtml(item.savedAt)}</p>
+    </div>
+  `).join('');
+}
+
+function exportTXT() {
+  const data = episodeData();
+  if (!data.questions.length) {
+    alert('Slumpa minst en fråga först.');
+    return;
+  }
+  const content = [
+    data.title,
+    data.subtitle,
+    '',
+    'Dagens frågor:',
+    ...data.questions.map((q, i) => `${i + 1}. ${q.question} [${q.category}]`),
+    '',
+    'Show notes:',
+    data.notes || '(inga anteckningar)',
+    '',
+    `Skapad: ${data.savedAt}`
+  ].join('\n');
+
+  const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = slugify(data.title || '1000-fragor-avsnitt') + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function copyEpisode() {
+  const data = episodeData();
+  if (!data.questions.length) {
+    alert('Slumpa minst en fråga först.');
+    return;
+  }
+  const text = [
+    data.title,
+    data.subtitle,
+    '',
+    ...data.questions.map((q, i) => `${i + 1}. ${q.question} (${q.category})`),
+    '',
+    data.notes
+  ].join('\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('Avsnittet är kopierat.');
+  } catch (e) {
+    alert('Kunde inte kopiera automatiskt på den här enheten.');
+  }
+}
+
+function loadCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const parsed = parseCSV(text);
+    if (!parsed.length) {
+      alert('Ingen giltig data hittades i CSV-filen.');
+      return;
+    }
+    questions = parsed;
+    usedIndices = [];
+    currentEpisode = [];
+    saveQuestions();
+    saveUsed();
+    renderStatus();
+    renderEpisodes();
+    nextEpisode();
+    alert(`Laddade ${parsed.length} frågor.`);
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+  if (!lines.length) return [];
+
+  const rows = lines.map(line => splitCSVLine(line).map(cell =>
+    String(cell || '').trim().replace(/^"|"$/g, '')
+  ));
+
+  const normalize = (value) => String(value || '')
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const header = rows[0].map(normalize);
+  const questionIndex = header.findIndex(h => ['question', 'fraga', 'fragorubrik'].includes(h));
+  const categoryIndex = header.findIndex(h => ['category', 'kategori'].includes(h));
+
+  const out = [];
+
+  if (questionIndex !== -1 || categoryIndex !== -1) {
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const question = (row[questionIndex] || '').trim();
+      const category = (row[categoryIndex] || 'Okategoriserad').trim();
+      if (question) out.push({ question, category: category || 'Okategoriserad' });
+    }
+    return out;
+  }
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    let question = '';
+    let category = 'Okategoriserad';
+
+    if (row.length >= 3 && /^\d+$/.test((row[0] || '').trim())) {
+      question = (row[2] || '').trim();
+      category = (row[1] || 'Okategoriserad').trim();
+    } else if (row.length >= 2) {
+      question = (row[0] || '').trim();
+      category = (row[1] || 'Okategoriserad').trim();
+    } else {
+      question = (row[0] || '').trim();
+    }
+
+    if (question) out.push({ question, category: category || 'Okategoriserad' });
+  }
+
+  return out;
+}
+
+function splitCSVLine(line) {
+  const result = [];
+  let current = '';
+  let insideQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (insideQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === ',' && !insideQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function slugify(text) {
+  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+renderStatus();
+renderEpisodes();
+updateEpisodeTitle();
+</script>
+</body>
+</html>
