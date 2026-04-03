@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -319,7 +320,7 @@
         </div>
 
         <div class="footer-note">
-          CSV-format: <strong>question,category</strong><br>
+          CSV-format: <strong>question,category</strong> eller <strong>id,kategori,fråga</strong><br>
           Exempel: <em>Varför är himlen blå?,Vetenskap</em>
         </div>
       </div>
@@ -715,17 +716,53 @@ function loadCSV(event) {
 }
 
 function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(Boolean);
+  const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+  if (!lines.length) return [];
+
+  const rows = lines.map(line => splitCSVLine(line).map(cell =>
+    String(cell || '').trim().replace(/^"|"$/g, '')
+  ));
+
+  const normalize = (value) => String(value || '')
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const header = rows[0].map(normalize);
+  const questionIndex = header.findIndex(h => ['question', 'fraga', 'fragorubrik'].includes(h));
+  const categoryIndex = header.findIndex(h => ['category', 'kategori'].includes(h));
+
   const out = [];
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    if (i === 0 && line.toLowerCase().includes('question') && line.toLowerCase().includes('category')) continue;
-    const parts = splitCSVLine(line);
-    const question = (parts[0] || '').trim().replace(/^"|"$/g, '');
-    const category = (parts[1] || 'Okategoriserad').trim().replace(/^"|"$/g, '');
-    if (question) out.push({question, category: category || 'Okategoriserad'});
+
+  if (questionIndex !== -1 || categoryIndex !== -1) {
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const question = (row[questionIndex] || '').trim();
+      const category = (row[categoryIndex] || 'Okategoriserad').trim();
+      if (question) out.push({ question, category: category || 'Okategoriserad' });
+    }
+    return out;
   }
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    let question = '';
+    let category = 'Okategoriserad';
+
+    if (row.length >= 3 && /^\d+$/.test((row[0] || '').trim())) {
+      question = (row[2] || '').trim();
+      category = (row[1] || 'Okategoriserad').trim();
+    } else if (row.length >= 2) {
+      question = (row[0] || '').trim();
+      category = (row[1] || 'Okategoriserad').trim();
+    } else {
+      question = (row[0] || '').trim();
+    }
+
+    if (question) out.push({ question, category: category || 'Okategoriserad' });
+  }
+
   return out;
 }
 
